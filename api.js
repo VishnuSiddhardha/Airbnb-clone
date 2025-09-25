@@ -3,9 +3,8 @@ const ExpressError = require("./ExpressError.js");
 const app = express();
 
 app.use("/api", (req, res, next) => {
-    let {token} = req.query;
-    if (token === "giveaccess") next();
-    res.send("Access Denied");
+    console.log("I'm the middleware for the api Route");
+    next();
 });
 
 app.get("/api", (req, res) => {

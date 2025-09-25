@@ -1,13 +1,21 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listings.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const warpAsync = require("./utils/wrapAsync.js");
+const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema} = require("./schema.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
+
+const listingRouter = require("./routes/listing");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+const { nextTick } = require("process");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -29,64 +37,43 @@ main()
         console.log(err);
     })
 
+const sessionOptions = {
+    secret: "mysupersecretstring",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + 5 * 24 * 60 * 60 * 1000,
+        maxAge: 5 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+    }
+}
 
 app.get("/", (req, res) => {
     res.send("Hi, I'm root");
 });
 
-// get all listings
-app.get("/listings", warpAsync(async (req, res) => {
-    const allListings = await Listing.find({})
-    res.render("listings/index.ejs", { allListings });
-}));
+app.use(session(sessionOptions));
+app.use(flash());
 
-// Create New Listing Route
-app.get("/listings/new", (req, res) => {
-    res.render("listings/new.ejs");
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user;
+    next();
 });
 
-// Create Route
-app.post("/listings", warpAsync(async (req, res) => {
-    let result = listingSchema.validate(req.body);
-    console.log(result);
-    if (result.error) {
-        throw new ExpressError(400, result.error);
-    }
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-}));
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
-// show route
-app.get("/listings/:id",
-    warpAsync(async (req, res) => {
-        const { id } = req.params;
-        const listing = await Listing.findById(id);
-        res.render("listings/show.ejs", { listing });
-    })
-);
 
-// Edit Route
-app.get("/listings/:id/edit", warpAsync(async (req, res) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", { listing });
-}));
-
-// Update Route
-app.put("/listings/:id", warpAsync(async (req, res) => {
-    const { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings/${id}`);
-}));
-
-// Delte Route
-app.delete("/listings/:id", warpAsync(async (req, res) => {
-    let { id } = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listings");
-}));
 
 app.use((req, res, next) => {
     next(new ExpressError(404, "Page Not Found!"));
