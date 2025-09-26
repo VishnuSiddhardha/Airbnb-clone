@@ -8,11 +8,10 @@ const listingSchema = new Schema({
         type: String,
         required: true,
     },
-    description: String, 
+    description: String,
     image: {
-        type: String,
-        default: "https://png.pngtree.com/png-clipart/20190924/original/pngtree-empty-box-icon-for-your-project-png-image_4814103.jpg", 
-        set: (v) => v === "" ? "https://png.pngtree.com/png-clipart/20190924/original/pngtree-empty-box-icon-for-your-project-png-image_4814103.jpg" : v,
+        url: String,
+        filename: String,
     },
     price: Number,
     location: String,
@@ -27,13 +26,28 @@ const listingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
     },
+    geometry: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+    // category: {
+    //     type: String,
+    //     enum: ["mountains", ""],
+    // }
 });
 
 
 // middleware when Listings deleted
 listingSchema.post("findOneAndDelete", async (listing) => {
     if (listing) {
-        await review.deleteMany({_id: {$in: listing.reviews}});
+        await review.deleteMany({ _id: { $in: listing.reviews } });
     }
 });
 
