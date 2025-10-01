@@ -10,7 +10,7 @@ body {
 }
 
 .navbar {
-    height: 5rem;   
+    height: 5rem;
     background-color: white;
 }
 
@@ -23,12 +23,12 @@ body {
     color: #222222 !important;
 }
 
-.f-info-links a{
+.f-info-links a {
     text-decoration: none;
     color: #222222;
 }
 
-.f-info-links a:hover{
+.f-info-links a:hover {
     text-decoration: underline;
 }
 
@@ -42,7 +42,9 @@ body {
     align-items: space-evenly;
 }
 
-.f-info-links, .f-info-socials, .f-info-brand {
+.f-info-links,
+.f-info-socials,
+.f-info-brand {
     width: 100%;
     display: flex;
     align-items: center;
@@ -50,7 +52,7 @@ body {
 }
 
 .f-info-socials i {
-    font-size: 1.2rem; 
+    font-size: 1.2rem;
     margin-right: 1rem;
 }
 
@@ -73,9 +75,11 @@ body {
 .card-text p {
     font-weight: 400 !important;
 }
+
 .listing-link {
     text-decoration: none;
 }
+
 /* Card effect */
 .card-img-overlay:hover {
     opacity: 0.1;
@@ -105,5 +109,72 @@ body {
 
 #map {
     height: 400px;
-    width: 90vh; 
+    width: 90vh;
+}
+
+
+/* index Page Lising */
+
+
+#filters{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter {
+    margin-top: 2rem;
+    text-align: center;
+    margin-right: 2rem;
+    opacity: 0.7;
+}
+
+.filter:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.filter p {
+    font-size: 0.8rem;
+}
+
+.tax-info {
+    display: none;
+}
+
+.tax-toggle {
+    border: 1px solid black;
+    border-radius: 1rem;
+    height: 3.25rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Nav Bar */
+
+.search-btn {
+    background-color: #fe424d;
+    color: white;
+    border-radius: 25px;
+    padding: 0 1rem;
+}
+
+.search-btn:hover {
+    background-color: #fe424d;
+    color: white;
+}
+
+.search-btn i {
+    display: inline;
+    margin-right: 0.5rem;
+}
+
+.search-inp {
+    border-radius: 25px;
+    padding: 0.5rem 3rem;
+}
+
+.navbar-collapse {
+  background: white;
 }

@@ -1,43 +1,7 @@
 <% layout("/layouts/boilerplate") %>
 
-<style>
-  #filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .filter {
-    margin-top: 2rem;
-    text-align: center;
-    margin-right: 2rem;
-    opacity: 0.7;
-  }
-
-  .filter:hover {
-    opacity: 1;
-    cursor: pointer;
-  }
-
-  .filter p {
-    font-size: 0.8rem;
-  }
-
-  .tax-info {
-    display: none;
-  }
-
-  .tax-toggle {
-    border: 1px solid black;
-    border-radius:  1rem;
-    height: 3.25rem;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-  }
-</style>
-
 <div id="filters">
+
   <div class="filter">
     <div><i class="fa-solid fa-fire"></i></div>
     <p>Trending</p>
@@ -85,12 +49,12 @@
 
   <div class="tax-toggle mt-3">
     <div class="form-check-reverse form-switch">
-    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-    <label class="form-check-label" for="flexSwitchCheckDefault">Display total after taxes</label>
-  </div>
+      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+      <label class="form-check-label" for="flexSwitchCheckDefault">Display total after taxes</label>
+    </div>
   </div>
 </div>
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3" id="results">
   <% for(let listing of allListings) { %>
   <a href="/listings/<%= listing._id %>" class="listing-link">
     <div class="card col listing-card">
@@ -100,7 +64,7 @@
         <p class="card-text">
           <b><%= listing.title %><br></b>
           &#8377; <%= listing.price.toLocaleString("en-IN") %> / night
-          <i class="tax-info">&nbsp; &nbsp;+18% GST</i>
+          <i class="tax-info">&nbsp; &nbsp;+18% GST (<%= listing.price * 0.18 %>)</i>
         </p>
       </div>
     </div>
@@ -108,16 +72,83 @@
   <% } %>
 </div>
 
+<!-- Toast Container -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="featureToast" class="toast align-items-center text-bg-primary border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        This feature is coming soon...
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
 <script>
-  let taxSwitch = document.getElementById("flexSwitchCheckDefault");
-  taxSwitch.addEventListener("click", () => {
-    let taxInfo = document.getElementsByClassName("tax-info");
-    for (let info of taxInfo) {
-      if (info.style.display != "inline") {
-        info.style.display = "inline"
-      } else {
-        info.style.display = "none";
-      }
-    }
+  const form = document.querySelector('.d-flex');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Prevent page reload
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  const resultsDiv = document.getElementById('results');
+  let timeout;
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const query = searchInput.value.trim();
+      const url = query.length === 0 ?
+        '/listings/search-api?q=' // empty query = fetch all listings
+        :
+        `/listings/search-api?q=${encodeURIComponent(query)}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          resultsDiv.innerHTML = '';
+          if (data.length === 0) {
+            resultsDiv.innerHTML = '<p>No results found.</p>';
+            return;
+          }
+
+          data.forEach(listing => {
+            const card = document.createElement('div');
+            card.classList.add('col', 'listing-card');
+            card.innerHTML = `
+            <a href="/listings/${listing._id}" class="listing-link">
+              <div class="card col listing-card">
+                <img src="${listing.image.url}" class="card-img-top" alt="listing_image" style="height: 20rem;">
+                <div class="card-body">
+                  <p class="card-text">
+                    <b>${listing.title}</b><br>
+                    ₹ ${listing.price.toLocaleString("en-IN")} / night
+                    <i class="tax-info">&nbsp; &nbsp;+18% GST (${listing.price * 0.18})</i>
+                  </p>
+                </div>
+              </div>
+            </a>
+          `;
+            resultsDiv.appendChild(card);
+          });
+
+        });
+    }, 300); // debounce 300ms
   });
 </script>
+
+<% scripts = `
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterIcons = document.querySelectorAll('#filters .filter');
+    const featureToastEl = document.getElementById('featureToast');
+    const featureToast = new bootstrap.Toast(featureToastEl);
+
+    filterIcons.forEach(icon => {
+      icon.addEventListener('click', () => {
+        featureToast.show();
+      });
+    });
+  });
+</script>
+` %>

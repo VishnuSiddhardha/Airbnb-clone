@@ -9,6 +9,33 @@ module.exports.index = async (req, res) => {
     res.render("listings/index.ejs", { allListings });
 };
 
+// New controller for AJAX search
+module.exports.searchApi = async (req, res) => {
+  try {
+    const searchQuery = req.query.q || "";
+    let listings = [];
+    if (searchQuery.trim() !== "") {
+      listings = await Listing.find({
+        $or: [
+          { title: { $regex: searchQuery, $options: "i" } },
+          { description: { $regex: searchQuery, $options: "i" } },
+          { location: { $regex: searchQuery, $options: "i" } }
+        ]
+      })
+    //   }).limit(20); // safety limit
+    }
+    else {
+        listings = await Listing.find({});
+    }
+
+    res.json(listings);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+
 module.exports.renderNewForm = (req, res) => {
     res.render("listings/new.ejs");
 };
