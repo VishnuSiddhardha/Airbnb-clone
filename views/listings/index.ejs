@@ -1,59 +1,121 @@
 <% layout("/layouts/boilerplate") %>
 
-<div id="filters">
+<!-- <div id="filters" class="d-flex overflow-auto gap-3 p-2">
 
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-fire"></i></div>
     <p>Trending</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-bed"></i></div>
     <p>Rooms</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-building-user"></i></div>
     <p>Iconic Cities</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-mountain-city"></i></div>
     <p>Mountains</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-brands fa-fort-awesome"></i></div>
     <p>Castles</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-person-swimming"></i></div>
     <p>Amazing pools</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-tents"></i></div>
     <p>Camping</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-cow"></i></div>
     <p>Farms</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-snowflake"></i></div>
     <p>Arctic</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-igloo"></i></div>
     <p>Domes</p>
   </div>
-  <div class="filter">
+  <div class="filter text-center flex-shrink-0">
     <div><i class="fa-solid fa-ship"></i></div>
     <p>Boats</p>
   </div>
 
-  <div class="tax-toggle mt-3">
+</div>
+<div class="tax-toggle">
+  <div class="form-check-reverse form-switch">
+    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+    <label class="form-check-label" for="flexSwitchCheckDefault">Display total after taxes</label>
+  </div>
+</div> -->
+
+<div class="filters-wrapper d-flex flex-wrap align-items-center justify-content-between p-2">
+
+  <!-- scrollable icons -->
+  <div id="filters" class="d-flex flex-nowrap overflow-auto gap-3">
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-fire"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-bed"></i></div>
+      <p>Rooms</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-building-user"></i></div>
+      <p>Iconic Cities</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-mountain-city"></i></div>
+      <p>Mountains</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-brands fa-fort-awesome"></i></div>
+      <p>Castles</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-person-swimming"></i></div>
+      <p>Amazing pools</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-tents"></i></div>
+      <p>Camping</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-cow"></i></div>
+      <p>Farms</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-snowflake"></i></div>
+      <p>Arctic</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-igloo"></i></div>
+      <p>Domes</p>
+    </div>
+    <div class="filter text-center flex-shrink-0">
+      <div><i class="fa-solid fa-ship"></i></div>
+      <p>Boats</p>
+    </div>
+  </div>
+
+  <!-- toggle -->
+  <div class="tax-toggle mt-2 ms-md-2">
     <div class="form-check-reverse form-switch">
       <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
       <label class="form-check-label" for="flexSwitchCheckDefault">Display total after taxes</label>
     </div>
   </div>
 </div>
+
+
+
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3" id="results">
   <% for(let listing of allListings) { %>
   <a href="/listings/<%= listing._id %>" class="listing-link">
@@ -87,7 +149,7 @@
 <script>
   const form = document.querySelector('.d-flex');
   form.addEventListener('submit', (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault(); // Prevent page reload when pressing Enter
   });
 
   const searchInput = document.getElementById('searchInput');
@@ -99,41 +161,44 @@
     timeout = setTimeout(() => {
       const query = searchInput.value.trim();
       const url = query.length === 0 ?
-        '/listings/search-api?q=' // empty query = fetch all listings
-        :
+        '/listings/search-api?q=' :
         `/listings/search-api?q=${encodeURIComponent(query)}`;
 
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          resultsDiv.innerHTML = '';
+          resultsDiv.innerHTML = ''; // clear old cards
+
           if (data.length === 0) {
             resultsDiv.innerHTML = '<p>No results found.</p>';
             return;
           }
 
+          // resultsDiv itself should have the row classes in EJS
+          // don't add another row here, just append col divs
           data.forEach(listing => {
-            const card = document.createElement('div');
-            card.classList.add('col', 'listing-card');
-            card.innerHTML = `
+            const col = document.createElement('div');
+            col.classList.add('col');
+
+            col.innerHTML = `
             <a href="/listings/${listing._id}" class="listing-link">
-              <div class="card col listing-card">
+              <div class="card listing-card">
                 <img src="${listing.image.url}" class="card-img-top" alt="listing_image" style="height: 20rem;">
                 <div class="card-body">
                   <p class="card-text">
                     <b>${listing.title}</b><br>
                     ₹ ${listing.price.toLocaleString("en-IN")} / night
-                    <i class="tax-info">&nbsp; &nbsp;+18% GST (${listing.price * 0.18})</i>
+                    <i class="tax-info">&nbsp; &nbsp;+18% GST (${(listing.price * 0.18)})</i>
                   </p>
                 </div>
               </div>
             </a>
           `;
-            resultsDiv.appendChild(card);
-          });
 
+            resultsDiv.appendChild(col);
+          });
         });
-    }, 300); // debounce 300ms
+    }, 300); // debounce
   });
 </script>
 

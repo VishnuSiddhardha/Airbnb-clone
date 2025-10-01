@@ -109,24 +109,39 @@ body {
 
 #map {
     height: 400px;
-    width: 90vh;
 }
-
 
 /* index Page Lising */
 
+#filters {
+  display: flex;
+  flex-wrap: nowrap;       /* prevent going to next line */
+  overflow-x: auto;        /* enable horizontal scroll */
+  overflow-y: hidden;      /* hide vertical scrollbar */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
+  padding: 0.5rem;
+  scrollbar-width: thin;   /* Firefox */
+}
 
-#filters{
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+#filters::-webkit-scrollbar {
+  height: 6px;   /* horizontal scrollbar height */
+}
+
+#filters::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
 }
 
 .filter {
-    margin-top: 2rem;
+    margin-top: 0.5rem;
     text-align: center;
-    margin-right: 2rem;
+    margin-right: 1rem;
     opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.filter-div {
+    margin-right: 1rem;
 }
 
 .filter:hover {
@@ -149,6 +164,9 @@ body {
     padding: 1rem;
     display: flex;
     align-items: center;
+    /* added */
+    flex-shrink: 0;
+    margin-top: 0 !important;
 }
 
 /* Nav Bar */
@@ -176,5 +194,5 @@ body {
 }
 
 .navbar-collapse {
-  background: white;
+    background: white;
 }
